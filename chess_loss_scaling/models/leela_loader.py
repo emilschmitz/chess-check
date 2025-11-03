@@ -1,6 +1,5 @@
 """Leela Chess Zero integration for ground truth move probabilities."""
 import subprocess
-from pathlib import Path
 from typing import Optional
 
 import chess

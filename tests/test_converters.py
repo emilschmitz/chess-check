@@ -2,7 +2,7 @@
 import chess
 import pytest
 
-from src.data.converters import (
+from chess_loss_scaling.data.converters import (
     board_to_llm_prompt,
     get_legal_moves_san,
     get_legal_moves_uci,

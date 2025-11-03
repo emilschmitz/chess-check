@@ -1,13 +1,10 @@
 """LLM integration for chess move prediction."""
 import gc
-from typing import Optional
 
 import chess
-import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from ..data.converters import get_legal_moves_san
 from ..utils.logging_config import get_logger
 
 logger = get_logger()
@@ -69,7 +66,7 @@ class ChessLLM:
             self.model = self.model.to(self.device)
 
         self.model.eval()
-        self.logger.info(f"Model loaded successfully")
+        self.logger.info("Model loaded successfully")
 
     def _setup_device(self, device: str) -> str:
         """Setup device for model."""

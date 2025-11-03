@@ -1,7 +1,7 @@
 [project]
 name = "chess-check"
 version = "0.1.0"
-description = "Add your description here"
+description = "Testing Epoch AI's hypothesis: Does training loss correlate with chess prediction performance?"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -10,18 +10,20 @@ dependencies = [
     "pandas>=2.3.3",
     "requests>=2.32.5",
     "rich>=14.2.0",
-    "torch>=2.9.0",
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "accelerate>=0.20.0",
+    "python-chess>=1.999",
+    "pandas>=2.0.0",
+    "requests>=2.31.0",
+    "rich>=13.0.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.3.0",
     "pytest>=8.4.2",
     "ruff>=0.14.3",
-    "ty>=0.0.1a25",
 ]
 
-[tool.uv.workspace]
-members = [
-    "chess-loss-scaling",
-]

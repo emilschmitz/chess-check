@@ -1,14 +1,12 @@
 """End-to-end integration tests."""
 import json
-from pathlib import Path
 
 import chess.pgn
 import pytest
 
-from src.data.chess_dataset import ChessGameDataset
-from src.evaluation.aggregation import aggregate_all_results, evaluate_model_on_dataset
-from src.models.leela_loader import MockLeelaZeroModel
-from src.models.model_config import MODELS
+from chess_loss_scaling.data.chess_dataset import ChessGameDataset
+from chess_loss_scaling.evaluation.aggregation import aggregate_all_results
+from chess_loss_scaling.models.leela_loader import MockLeelaZeroModel
 
 
 @pytest.fixture

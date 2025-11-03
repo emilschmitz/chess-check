@@ -11,7 +11,6 @@ import pandas as pd
 from ..data.chess_dataset import ChessGameDataset
 from ..evaluation.chess_loss import calculate_game_loss
 from ..models.leela_loader import LeelaZeroModel
-from ..models.llm_loader import ChessLLM
 from ..models.model_config import get_reference_loss
 from ..utils.logging_config import get_logger
 from ..utils.progress import ProgressTracker

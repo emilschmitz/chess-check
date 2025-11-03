@@ -1,8 +1,7 @@
 """Tests for chess loss calculation."""
 import numpy as np
-import pytest
 
-from src.evaluation.chess_loss import cross_entropy_loss, kl_divergence
+from chess_loss_scaling.evaluation.chess_loss import cross_entropy_loss, kl_divergence
 
 
 def test_cross_entropy_identical_distributions():

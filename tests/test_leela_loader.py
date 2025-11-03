@@ -1,8 +1,7 @@
 """Tests for Leela Chess Zero loader."""
 import chess
-import pytest
 
-from src.models.leela_loader import MockLeelaZeroModel, load_leela_model
+from chess_loss_scaling.models.leela_loader import MockLeelaZeroModel, load_leela_model
 
 
 def test_mock_leela_initialization():
