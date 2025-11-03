@@ -1,68 +1,46 @@
-"""Leela Chess Zero integration for ground truth move probabilities."""
-import subprocess
+"""Leela Chess Zero integration using python bindings."""
 from typing import Optional
 
 import chess
 import numpy as np
-
-from ..utils.logging_config import get_logger
-
-logger = get_logger()
+import lczero.backends as lc0
 
 
 class LeelaZeroModel:
     """
-    Load and run Leela Chess Zero for move probabilities.
+    Load and run Leela Chess Zero using python bindings.
 
-    This implementation uses UCI protocol to communicate with lc0.
-    Alternatively, you can use python-lczero bindings if available.
+    Uses lczero.backends for efficient neural network evaluation.
     """
 
     def __init__(
         self,
         weights_path: Optional[str] = None,
-        lc0_binary: str = "lc0",
-        device: str = "cpu",
-        nodes: int = 100,
+        backend: str = "blas",
     ):
         """
         Initialize Leela Chess Zero.
 
         Args:
             weights_path: Path to weights file (e.g., weights.pb.gz)
-            lc0_binary: Path to lc0 executable
-            device: "cuda" or "cpu"
-            nodes: Number of nodes to search (affects quality)
+            backend: Backend to use ("blas", "cudnn", etc.).
+                    "blas" works on CPU with OpenBLAS.
+                    CUDA backends will be used automatically if available.
         """
-        self.weights_path = weights_path
-        self.lc0_binary = lc0_binary
-        self.device = device
-        self.nodes = nodes
-        self.process: Optional[subprocess.Popen] = None
-        self.logger = get_logger()
+        self.weights_path = weights_path or "weights/lc0_weights.pb.gz"
+        self.backend_name = backend
 
-        # Check if lc0 is available
-        self._check_lc0_available()
+        # Load weights and create backend
+        self._load_network()
 
-    def _check_lc0_available(self):
-        """Check if lc0 binary is available."""
+    def _load_network(self):
+        """Load the neural network weights and create backend."""
         try:
-            result = subprocess.run(
-                [self.lc0_binary, "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if result.returncode == 0:
-                self.logger.info(f"Found lc0: {result.stdout.split()[0] if result.stdout else 'version unknown'}")
-            else:
-                self.logger.warning("lc0 binary found but may not be working correctly")
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            self.logger.warning(
-                f"lc0 not found at '{self.lc0_binary}'. "
-                "Install from: https://github.com/LeelaChessZero/lc0/releases"
-            )
-            raise RuntimeError("lc0 binary not available")
+            self.weights = lc0.Weights(self.weights_path)
+            self.backend = lc0.Backend(weights=self.weights, backend=self.backend_name)
+
+        except Exception as e:
+            raise RuntimeError(f"Failed to load LC0 weights from {self.weights_path}: {e}")
 
     def get_move_probabilities(
         self, board: chess.Board, temperature: float = 1.0
@@ -77,115 +55,58 @@ class LeelaZeroModel:
         Returns:
             Dict mapping UCI moves (e.g., "e2e4") to probabilities
         """
-        # For a real implementation, we would:
-        # 1. Set up UCI communication with lc0
-        # 2. Send position
-        # 3. Request "go nodes {self.nodes}"
-        # 4. Parse "info" lines to get policy probabilities
+        # Convert chess board to LC0 game state
+        game = self._board_to_gamestate(board)
 
-        # Placeholder: Return uniform distribution over legal moves
-        # In production, replace with actual lc0 communication
-        return self._mock_leela_probabilities(board)
+        # Create input tensor
+        input_tensor = game.as_input(self.backend)
 
-    def _mock_leela_probabilities(self, board: chess.Board) -> dict[str, float]:
-        """
-        Mock implementation that returns realistic-looking probabilities.
+        # Run forward pass
+        outputs = self.backend.evaluate(input_tensor)
+        output = outputs[0]
 
-        In production, replace this with actual lc0 UCI communication.
-        """
-        legal_moves = list(board.legal_moves)
-        num_moves = len(legal_moves)
+        # Get policy probabilities
+        policy_indices = game.policy_indices()
+        moves = game.moves()
 
-        if num_moves == 0:
-            return {}
+        # Get raw logits
+        raw_logits = np.array([output.p_raw(idx)[0] for idx in policy_indices])
 
-        # Create somewhat realistic distribution (not uniform)
-        # Better moves (captures, checks) get higher probabilities
-        logits = []
-        for move in legal_moves:
-            score = 1.0
+        # Apply temperature and softmax
+        if temperature != 1.0:
+            raw_logits = raw_logits / temperature
 
-            # Captures get bonus
-            if board.is_capture(move):
-                score += 2.0
-
-            # Checks get bonus
-            board.push(move)
-            if board.is_check():
-                score += 1.5
-            board.pop()
-
-            # Add some randomness
-            score += np.random.normal(0, 0.5)
-            logits.append(score)
-
-        # Softmax to get probabilities
-        logits_array = np.array(logits)
-        exp_logits = np.exp(logits_array - np.max(logits_array))  # Numerical stability
+        exp_logits = np.exp(raw_logits - np.max(raw_logits))
         probs = exp_logits / exp_logits.sum()
 
-        return {move.uci(): float(prob) for move, prob in zip(legal_moves, probs)}
+        return {move: float(prob) for move, prob in zip(moves, probs)}
+
+    def _board_to_gamestate(self, board: chess.Board) -> lc0.GameState:
+        """Convert python-chess Board to LC0 GameState."""
+        # Convert board to FEN and create GameState from it
+        fen = board.fen()
+        return lc0.GameState(fen)
 
     def close(self):
         """Clean up resources."""
-        if self.process:
-            self.process.terminate()
-            self.process = None
-
-
-class MockLeelaZeroModel:
-    """
-    Mock Leela Zero model for testing without lc0 installation.
-
-    Returns random but valid probability distributions.
-    """
-
-    def __init__(self, **kwargs):
-        """Initialize mock model (accepts any kwargs for compatibility)."""
-        self.logger = get_logger()
-        self.logger.warning("Using MockLeelaZeroModel - not real Leela Zero!")
-
-    def get_move_probabilities(self, board: chess.Board) -> dict[str, float]:
-        """Return random probability distribution over legal moves."""
-        legal_moves = list(board.legal_moves)
-        if not legal_moves:
-            return {}
-
-        # Use Dirichlet distribution for realistic-looking probabilities
-        alpha = np.ones(len(legal_moves))
-        probs = np.random.dirichlet(alpha)
-
-        return {move.uci(): float(prob) for move, prob in zip(legal_moves, probs)}
-
-    def close(self):
-        """No-op for mock."""
+        # Python bindings handle cleanup automatically
         pass
 
 
 def load_leela_model(
     weights_path: Optional[str] = None,
-    mock: bool = False,
+    backend: str = "blas",
     **kwargs
-) -> LeelaZeroModel | MockLeelaZeroModel:
+) -> LeelaZeroModel:
     """
     Factory function to load Leela Zero model.
 
     Args:
         weights_path: Path to weights file
-        mock: If True, use mock model instead of real lc0
+        backend: Backend to use (default: "blas" for CPU)
         **kwargs: Additional arguments for LeelaZeroModel
 
     Returns:
-        LeelaZeroModel or MockLeelaZeroModel
+        LeelaZeroModel
     """
-    if mock:
-        logger.info("Loading mock Leela Zero model")
-        return MockLeelaZeroModel(**kwargs)
-
-    try:
-        logger.info("Loading real Leela Zero model")
-        return LeelaZeroModel(weights_path=weights_path, **kwargs)
-    except RuntimeError as e:
-        logger.warning(f"Failed to load real Leela Zero: {e}")
-        logger.info("Falling back to mock model")
-        return MockLeelaZeroModel(**kwargs)
+    return LeelaZeroModel(weights_path=weights_path, backend=backend, **kwargs)

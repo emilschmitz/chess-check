@@ -19,7 +19,6 @@ def main(
     num_games: int = 10,
     models: list[str] = None,
     device: str = None,
-    mock_leela: bool = False,
     max_positions_per_game: int = None,
     min_elo: int = 2500,
 ):
@@ -30,7 +29,6 @@ def main(
         num_games: Number of chess games to evaluate
         models: List of model names to evaluate (None = all)
         device: Device to use ("cuda", "cpu", or None for auto)
-        mock_leela: Use mock Leela Zero instead of real one
         max_positions_per_game: Max positions per game (None = all)
         min_elo: Minimum Elo rating for games
     """
@@ -63,7 +61,7 @@ def main(
 
     # Step 3: Load Leela Zero
     logger.info("Step 3: Loading Leela Chess Zero")
-    leela = load_leela_model(mock=mock_leela)
+    leela = load_leela_model()
 
     # Step 4: Select models to evaluate
     if models is None:
@@ -135,12 +133,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--mock-leela",
-        action="store_true",
-        help="Use mock Leela Zero (for testing without lc0)"
-    )
-
-    parser.add_argument(
         "--max-positions",
         type=int,
         help="Max positions per game to evaluate (default: all)"
@@ -169,7 +161,6 @@ if __name__ == "__main__":
         num_games=args.num_games,
         models=args.models,
         device=args.device,
-        mock_leela=args.mock_leela,
         max_positions_per_game=args.max_positions,
         min_elo=args.min_elo,
     )

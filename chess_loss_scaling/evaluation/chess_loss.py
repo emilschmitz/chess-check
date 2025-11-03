@@ -158,7 +158,7 @@ def calculate_game_loss(
     llm: ChessLLM,
     leela: LeelaZeroModel,
     game: chess.pgn.Game,
-    max_positions: int = None,
+    max_positions: int | None = None,
 ) -> dict[str, Any]:
     """
     Calculate average loss for one game.

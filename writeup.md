@@ -1,4 +1,5 @@
 # AI Forecasting Hackathon
+
 ## Report Template
 
 **Emil Schmitz**
@@ -32,6 +33,7 @@ We hypothesize that LLMs with lower general training losses will also show lower
 ## Methods
 
 ### 2.1 Models Evaluated
+
 - GPT-2 (124M parameters) - baseline small model
 - GPT-Neo 1.3B - mid-size open model
 - Pythia 1.4B - specifically designed with documented training
@@ -41,15 +43,18 @@ We hypothesize that LLMs with lower general training losses will also show lower
 Model training losses sourced from original papers and documentation.
 
 ### 2.2 Chess Ground Truth
+
 - Leela Chess Zero (lc0) as superhuman reference
 - Rationale: Open source, superhuman strength (3500+ Elo), provides move probability distributions via policy head
 
 ### 2.3 Dataset
+
 - Source: Lichess Elite Database / FICS Games Database
 - Number of games: 100
 - Game quality: Grandmaster level (Elo > 2500)
 
 ### 2.4 Procedure
+
 1. Load chess games in PGN format
 2. For each position in each game:
    - Convert position to text format for LLM (full game history in algebraic notation)
@@ -62,6 +67,7 @@ Model training losses sourced from original papers and documentation.
 5. Correlate with published training/evaluation losses
 
 ### 2.5 Technical Implementation
+
 - Python with PyTorch, Transformers (HuggingFace), python-chess
 - Leela Chess Zero via python-lczero or UCI interface
 
@@ -94,10 +100,12 @@ Model training losses sourced from original papers and documentation.
 ## Appendix
 
 ### Potential Limitations
+
 - Sample size of models tested limited by computational resources
 - Chess may not generalize to other domains
 
 ### Suggestions for Future Work
+
 - Test on multiple game engines (Stockfish, Komodo) and average their distributions. No engine is optimal. Leela Chess Zero may be biased towards one specific type of play, while another engine may be biased towards another.
 - Expand to other domains with verifiable ground truth (mathematical proofs, code correctness)
 - Use constrained generation or tool-use paradigm to ensure valid move outputs

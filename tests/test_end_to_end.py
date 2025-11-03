@@ -5,8 +5,12 @@ import chess.pgn
 import pytest
 
 from chess_loss_scaling.data.chess_dataset import ChessGameDataset
-from chess_loss_scaling.evaluation.aggregation import aggregate_all_results
-from chess_loss_scaling.models.leela_loader import MockLeelaZeroModel
+from chess_loss_scaling.evaluation.aggregation import (
+    aggregate_all_results,
+    evaluate_model_on_dataset,
+)
+from chess_loss_scaling.models.model_config import MODELS
+from tests.test_leela_loader import MockLeelaZeroModel
 
 
 @pytest.fixture
@@ -143,12 +147,58 @@ def test_evaluate_single_model_mock(sample_pgn, mock_leela, tmp_path):
 
     This test is marked as slow and would need to be run with actual models.
     """
-    pytest.skip("Requires real LLM model - expensive to run in CI")
+    dataset = ChessGameDataset(sample_pgn, max_games=1, max_moves_per_game=5)
+    model_config = MODELS[0]  # GPT-2
+    result = evaluate_model_on_dataset(
+        model_config, dataset, mock_leela, tmp_path
+    )
+    assert result["num_games"] > 0
 
-    # This is what a full test would look like:
-    # dataset = ChessGameDataset(sample_pgn, max_games=1, max_moves_per_game=5)
-    # model_config = MODELS[0]  # GPT-2
-    # result = evaluate_model_on_dataset(
-    #     model_config, dataset, mock_leela, tmp_path
-    # )
-    # assert result["num_games"] > 0
+
+@pytest.mark.slow
+def test_llm_and_leela_integration(sample_pgn, tmp_path):
+    """
+    Integration test: LLM + Leela Chess Zero working together.
+
+    Tests the full pipeline with real LC0 bindings and a small LLM.
+    """
+    import os
+    from chess_loss_scaling.models.leela_loader import load_leela_model
+
+    # Check if weights exist
+    weights_path = os.path.join(os.path.dirname(__file__), "..", "weights", "lc0_weights.pb.gz")
+    weights_path = os.path.normpath(weights_path)
+
+    if not os.path.exists(weights_path):
+        pytest.skip(f"LC0 weights not found at {weights_path}")
+
+    try:
+        # Load real Leela
+        leela = load_leela_model(weights_path=weights_path)
+    except RuntimeError as e:
+        pytest.skip(f"Failed to load LC0: {e}")
+
+    # Create a small dataset
+    dataset = ChessGameDataset(sample_pgn, max_games=1, max_moves_per_game=3)
+
+    # Use GPT-2 (smallest model) for testing
+    model_config = MODELS[0]
+
+    try:
+        # Run evaluation
+        result = evaluate_model_on_dataset(
+            model_config, dataset, leela, tmp_path, max_positions_per_game=3
+        )
+
+        # Verify results
+        assert result["num_games"] == 1
+        assert result["num_positions"] == 3
+        assert "chess_avg_loss" in result
+        assert result["chess_avg_loss"] > 0
+
+        # Verify output file was created
+        output_file = tmp_path / f"{model_config['name']}.json"
+        assert output_file.exists()
+
+    finally:
+        leela.close()

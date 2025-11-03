@@ -23,7 +23,7 @@ def evaluate_model_on_dataset(
     dataset: ChessGameDataset,
     leela: LeelaZeroModel,
     output_dir: Path,
-    max_positions_per_game: int = None,
+    max_positions_per_game: int | None = None,
 ) -> dict[str, Any]:
     """
     Evaluate one LLM on entire chess dataset.
@@ -146,7 +146,7 @@ def evaluate_model_on_dataset(
     return result
 
 
-def aggregate_all_results(results_dir: Path, output_file: Path = None) -> pd.DataFrame:
+def aggregate_all_results(results_dir: Path, output_file: Path | None = None) -> pd.DataFrame:
     """
     Load all model JSONs and create aggregate CSV.
 
