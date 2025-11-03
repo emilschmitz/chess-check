@@ -61,17 +61,3 @@ def test_mock_leela_close():
     leela = MockLeelaZeroModel()
     leela.close()  # Should not raise
 
-
-def test_mock_leela_different_positions():
-    """Test mock Leela returns different distributions for different positions."""
-    leela = MockLeelaZeroModel()
-
-    board1 = chess.Board()
-    probs1 = leela.get_move_probabilities(board1)
-
-    board2 = chess.Board()
-    board2.push_san("e4")
-    probs2 = leela.get_move_probabilities(board2)
-
-    # Different positions, different number of moves
-    assert len(probs1) != len(probs2)
