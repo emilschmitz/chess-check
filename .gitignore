@@ -8,6 +8,7 @@ weights/
 
 # Data
 data/
+!chess_loss_scaling/data
 *.pgn
 *.zip
 *.gz
