@@ -8,12 +8,12 @@ import chess.pgn
 import numpy as np
 import pandas as pd
 
-from ..data.chess_dataset import ChessGameDataset
-from ..evaluation.chess_loss import calculate_game_loss
-from ..models.leela_loader import LeelaZeroModel
-from ..models.model_config import get_reference_loss
-from ..utils.logging_config import get_logger
-from ..utils.progress import ProgressTracker
+from chess_loss_scaling.data.chess_dataset import ChessGameDataset
+from chess_loss_scaling.evaluation.chess_loss import calculate_game_loss
+from chess_loss_scaling.models.leela_loader import LeelaZeroModel
+from chess_loss_scaling.models.model_config import get_reference_loss
+from chess_loss_scaling.utils.logging_config import get_logger
+from chess_loss_scaling.utils.progress import ProgressTracker
 
 logger = get_logger()
 
@@ -41,7 +41,7 @@ def evaluate_model_on_dataset(
     logger.info(f"Evaluating model: {model_config['name']}")
 
     # Load LLM
-    from ..models.llm_loader import load_chess_llm
+    from chess_loss_scaling.models.llm_loader import load_chess_llm
     llm = load_chess_llm(
         model_id=model_config["hf_id"],
         device="auto",

@@ -5,10 +5,10 @@ import chess
 import chess.pgn
 import numpy as np
 
-from ..data.converters import board_to_llm_prompt, get_legal_moves_san, normalize_move_format
-from ..models.leela_loader import LeelaZeroModel
-from ..models.llm_loader import ChessLLM
-from ..utils.logging_config import get_logger
+from chess_loss_scaling.data.converters import board_to_llm_prompt, get_legal_moves_san, normalize_move_format
+from chess_loss_scaling.models.leela_loader import LeelaZeroModel
+from chess_loss_scaling.models.llm_loader import ChessLLM
+from chess_loss_scaling.utils.logging_config import get_logger
 
 logger = get_logger()
 

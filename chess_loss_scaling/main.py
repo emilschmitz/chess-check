@@ -2,15 +2,15 @@
 import argparse
 from pathlib import Path
 
-from .data.chess_dataset import ChessGameDataset, download_chess_games
-from .evaluation.aggregation import (
+from chess_loss_scaling.data.chess_dataset import ChessGameDataset, download_chess_games
+from chess_loss_scaling.evaluation.aggregation import (
     aggregate_all_results,
     evaluate_model_on_dataset,
     print_results_summary,
 )
-from .models.leela_loader import load_leela_model
-from .models.model_config import MODELS, list_model_names
-from .utils.logging_config import setup_logging
+from chess_loss_scaling.models.leela_loader import load_leela_model
+from chess_loss_scaling.models.model_config import MODELS, list_model_names
+from chess_loss_scaling.utils.logging_config import setup_logging
 
 logger = setup_logging()
 

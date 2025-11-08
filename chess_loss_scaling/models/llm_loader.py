@@ -5,7 +5,7 @@ import chess
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from ..utils.logging_config import get_logger
+from chess_loss_scaling.utils.logging_config import get_logger
 
 logger = get_logger()
 
