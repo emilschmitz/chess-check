@@ -1,6 +1,6 @@
 """Logging configuration with rich output."""
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from rich.logging import RichHandler
@@ -24,7 +24,7 @@ def setup_logging(level: str = "INFO", log_file: Path | None = None) -> logging.
     if log_file is None:
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         log_file = log_dir / f"chess_loss_scaling_{timestamp}_utc.log"
     else:
         log_file = Path(log_file)
@@ -36,7 +36,7 @@ def setup_logging(level: str = "INFO", log_file: Path | None = None) -> logging.
         "%(asctime)s UTC - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
-    file_formatter.converter = lambda *args: datetime.utcnow().timetuple()
+    file_formatter.converter = lambda *_: datetime.now(timezone.utc).timetuple()
     file_handler.setFormatter(file_formatter)
     file_handler.setLevel(numeric_level)
 

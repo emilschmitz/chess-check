@@ -60,3 +60,5 @@ logs/
 
 # External dependencies
 external/
+
+results/*

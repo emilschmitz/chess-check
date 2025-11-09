@@ -29,7 +29,9 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  --quick-test    Run quick test after setup (1 game, gpt2 only)"
-            echo "  --full-eval     Run full evaluation after setup (all models, 20 games)"
+            echo "  --full-eval     Run full evaluation (all models, default settings)"
+            echo "                  Models: chess_loss_scaling/models/model_config.py"
+            echo "                  Config: chess_loss_scaling/main.py (see argparse defaults)"
             echo "  --test          Run pytest after setup"
             echo "  --help          Show this help message"
             echo ""
@@ -210,9 +212,8 @@ if [ "$QUICK_TEST" = true ]; then
 fi
 
 if [ "$FULL_EVAL" = true ]; then
-    print_status "Starting full evaluation (all models, 20 games)..."
+    print_status "Starting full evaluation (all models, default settings)..."
     uv run python -m chess_loss_scaling.main \
-        --num-games 20 \
         $USE_MOCK
     exit 0
 fi
@@ -221,7 +222,9 @@ fi
 echo "What would you like to do?"
 echo ""
 echo "1) Run quick test (1 game, just to verify it works)"
-echo "2) Run full evaluation (all 5 models, 20 games)"
+echo "2) Run full evaluation (all models, default settings)"
+echo "   Models: chess_loss_scaling/models/model_config.py"
+echo "   Config: chess_loss_scaling/main.py (argparse defaults)"
 echo "3) Run pytest"
 echo "4) Skip and exit"
 echo ""
@@ -240,8 +243,7 @@ case $REPLY in
     2)
         echo ""
         print_status "Starting full evaluation..."
-        uv run python -m chess_loss_scaling.main \
-            --num-games 20
+        uv run python -m chess_loss_scaling.main
         ;;
     3)
         echo ""
@@ -264,8 +266,12 @@ echo ""
 echo "Quick test:"
 echo "  ./setup.sh --quick-test"
 echo ""
-echo "Full evaluation:"
+echo "Full evaluation (default settings):"
 echo "  ./setup.sh --full-eval"
+echo ""
+echo "Configuration:"
+echo "  Models: chess_loss_scaling/models/model_config.py"
+echo "  Defaults: chess_loss_scaling/main.py (argparse defaults)"
 echo ""
 echo "Run tests:"
 echo "  ./setup.sh --test"

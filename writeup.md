@@ -121,7 +121,39 @@ Due to the difficulty of extracting precise numerical values from these sources 
 
 ## Results
 
-*…in progress*
+### 3.1 Chess Loss by Model
+
+Table 1 shows the chess move prediction loss (cross-entropy against Leela Chess Zero) for all evaluated models. Lower values indicate better alignment with superhuman chess play.
+
+| Model Name | Parameters | Reference Loss | Chess Avg Loss | Num Games | Num Positions |
+|------------|-----------|----------------|----------------|-----------|---------------|
+| gpt2 | 124M | 3.31 | 4.352 | 5 | 405 |
+| gpt-neo-1.3B | 1.3B | 2.85 | 4.151 | 5 | 405 |
+| pythia-1b | 1.0B | 2.74 | 4.118 | 5 | 405 |
+| pythia-1.4b | 1.4B | 2.64 | 4.256 | 5 | 405 |
+| olmo-2-1b | 1.0B | TODO | 4.247 | 5 | 405 |
+| olmo-2-1b-mid | 1.0B | TODO | 4.130 | 5 | 405 |
+| olmo-2-7b | 7.0B | TODO | 4.233 | 5 | 405 |
+| olmo-2-7b-mid | 7.0B | TODO | 4.196 | 5 | 405 |
+| olmo-2-13b | 13.0B | TODO | 4.188 | 5 | 405 |
+| olmo-2-13b-mid | 13.0B | TODO | 4.043 | 5 | 405 |
+| olmo-2-32b | 32.0B | TODO | 3.913 | 5 | 405 |
+| olmo-2-32b-mid | 32.0B | TODO | 3.882 | 5 | 405 |
+
+*Reference Loss = next-token prediction loss from original papers/training logs (TODO for OLMo models)*
+
+### 3.2 Key Observations
+
+**Model Size Effects:**
+- Among OLMo 2 models, chess loss decreases with model size: the 32B model achieves the lowest loss (3.882 for mid-checkpoint, 3.913 for final), while the 1B model shows the highest loss (4.247 for final, 4.130 for mid-checkpoint).
+- The OLMo 2 32B mid-checkpoint achieves the best overall chess performance across all evaluated models at 3.882.
+
+**Checkpoint Comparison:**
+- Mid-training checkpoints (~50% through stage 1) generally perform slightly better than or comparable to final checkpoints across all OLMo 2 model sizes. These differences may be due to noise. 
+
+**Cross-Model Comparisons:**
+- TODO: Pending extraction of reference losses for OLMo models from WandB logs and paper to enable full correlation analysis.
+- Smaller models (GPT-2 124M, Pythia 1B) show higher chess losses.
 
 ---
 

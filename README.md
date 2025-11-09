@@ -79,7 +79,7 @@ python -m chess_loss_scaling.main \
 
 - `--num-games N`: Number of games to evaluate (default: 10)
 - `--models [MODEL ...]`: Specific models to evaluate (default: all)
-  - Choices: gpt2, gpt-neo-1.3B, pythia-1b, pythia-1.4b, pythia-2.8b
+  - Choices: gpt2, gpt-neo-1.3B, pythia-1b, pythia-1.4b, olmo-2-1b, olmo-2-1b-mid, olmo-2-7b, olmo-2-7b-mid, olmo-2-13b, olmo-2-13b-mid, olmo-2-32b, olmo-2-32b-mid
 - `--device {cuda,cpu}`: Device to use (default: auto-detect)
 - `--max-positions N`: Max positions per game (default: all)
 - `--min-elo N`: Minimum Elo rating for games (default: 2500)
@@ -119,9 +119,12 @@ chess-loss-scaling/
 2. **GPT-Neo-1.3B** - Mid-size open model
 3. **Pythia-1B** - Documented training trajectory
 4. **Pythia-1.4B** - Larger Pythia variant
-5. **Pythia-2.8B** - Largest practical variant
+5. **OLMo-2-1B** (1B) - Final and mid-checkpoint variants
+6. **OLMo-2-7B** (7B) - Final and mid-checkpoint variants
+7. **OLMo-2-13B** (13B) - Final and mid-checkpoint variants
+8. **OLMo-2-32B** (32B) - Final and mid-checkpoint variants
 
-Training losses sourced from original papers (GPT-2, Pythia).
+Training losses sourced from original papers (GPT-2, Pythia). Reference losses for OLMo models: TODO.
 
 ## Running Tests
 
