@@ -55,6 +55,7 @@ Thumbs.db
 *.ipynb
 
 # Logs
+logs/
 *.log
 
 # External dependencies

@@ -1,4 +1,7 @@
 """Model configurations with training losses."""
+from chess_loss_scaling.utils.logging_config import get_logger
+
+logger = get_logger()
 
 MODELS = [
     {
@@ -139,7 +142,7 @@ def list_model_names() -> list:
     return [m["name"] for m in MODELS]
 
 
-def get_reference_loss(model_config: dict) -> float:
+def get_reference_loss(model_config: dict) -> float | None:
     """Get the reference training/eval loss for correlation analysis."""
     # Prefer eval_loss if available (more stable), fall back to training_loss
     if model_config["eval_loss"] is not None:
@@ -147,4 +150,5 @@ def get_reference_loss(model_config: dict) -> float:
     elif model_config["training_loss"] is not None:
         return model_config["training_loss"]
     else:
-        raise ValueError(f"No reference loss available for {model_config['name']}")
+        logger.warning(f"No reference loss available for {model_config['name']}")
+        return None

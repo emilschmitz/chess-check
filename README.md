@@ -14,8 +14,11 @@ This project evaluates whether general language model training loss correlates w
 
 **Ubuntu/Debian:**
 
-```bash
-sudo apt install git cmake ninja-build pkg-config g++ libopenblas-dev
+```
+apt-get update
+apt-get -y install git python3-pip gcc-10 g++-10 zlib1g zlib1g-dev
+pip3 install meson
+pip3 install ninja
 ```
 
 **Other platforms:** See https://github.com/LeelaChessZero/lc0/blob/master/README.md#building-and-running-lc0
@@ -195,6 +198,8 @@ If you use this code, please cite:
 4. Expand to more models and predict loss with Chinchilla scaling law
 5. Implement constrained generation for valid moves
 6. Add visualization scripts (loss correlation plots)
+7. Wandb or similar integration
+8. Anything useful here? https://arxiv.org/html/2410.11840v1
 
 ## License
 

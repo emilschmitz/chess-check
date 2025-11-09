@@ -89,6 +89,7 @@ print_status "Creating project directories..."
 mkdir -p data/chess_games
 mkdir -p weights
 mkdir -p results/models
+mkdir -p logs
 
 # Check for Leela Chess Zero
 print_status "Checking for Leela Chess Zero..."
