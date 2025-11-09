@@ -1,6 +1,6 @@
 # Chess Loss Scaling
 
-Testing Epoch AI's hypothesis: Does training loss correlate with chess prediction performance?
+Testing Epoch AI's hypothesis from their [direct approach](https://epoch.ai/files/direct-approach.pdf): Does training loss correlate with chess prediction performance?
 
 ## Overview
 
@@ -10,7 +10,16 @@ This project evaluates whether general language model training loss correlates w
 
 ## Quick Start
 
-### Option 1: Automated Setup (Recommended)
+### 1. Install Leela Chess Zero dependencies
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install git cmake ninja-build pkg-config g++ libopenblas-dev
+```
+
+**Other platforms:** See https://github.com/LeelaChessZero/lc0/blob/master/README.md#building-and-running-lc0
+
+### 2. Run automated setup
 
 ```bash
 chmod +x setup.sh
@@ -18,25 +27,13 @@ chmod +x setup.sh
 ```
 
 This will:
-- Install dependencies with uv
+- Install Python dependencies with uv
+- Clone and build Leela Chess Zero v0.32.0 into `external/lc0`
+- Download neural network weights
 - Download chess games
-- Run evaluation (with mock Leela by default)
-- Generate results CSV
+- Run evaluation
 
-### Option 2: Manual Setup
-
-```bash
-# Install uv if needed
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install dependencies
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -e .
-
-# Run evaluation
-python -m src.main --num-games 5 --mock-leela --max-positions 10
-```
+**Note:** For testing without lc0 (not recommended for real evaluation), use `--mock-leela` flag
 
 ## Usage
 
@@ -45,27 +42,27 @@ python -m src.main --num-games 5 --mock-leela --max-positions 10
 Evaluate all models on 10 games:
 
 ```bash
-python -m src.main --num-games 10 --mock-leela
+python -m chess_loss_scaling.main --num-games 10
 ```
 
 ### Evaluate Specific Models
 
 ```bash
-python -m src.main --models gpt2 pythia-1b --num-games 5 --mock-leela
+python -m chess_loss_scaling.main --models gpt2 pythia-1b --num-games 5
 ```
 
-### With Real Leela Zero
+### Testing Without lc0
 
-If you have lc0 installed:
+For development/testing only (not for real evaluation):
 
 ```bash
-python -m src.main --num-games 10
+python -m chess_loss_scaling.main --num-games 10 --mock-leela
 ```
 
 ### Advanced Options
 
 ```bash
-python -m src.main \
+python -m chess_loss_scaling.main \
   --num-games 20 \
   --models pythia-1b pythia-1.4b \
   --max-positions 15 \
@@ -79,10 +76,10 @@ python -m src.main \
 - `--models [MODEL ...]`: Specific models to evaluate (default: all)
   - Choices: gpt2, gpt-neo-1.3B, pythia-1b, pythia-1.4b, pythia-2.8b
 - `--device {cuda,cpu}`: Device to use (default: auto-detect)
-- `--mock-leela`: Use mock Leela Zero (for testing without lc0)
 - `--max-positions N`: Max positions per game (default: all)
 - `--min-elo N`: Minimum Elo rating for games (default: 2500)
 - `--log-level {DEBUG,INFO,WARNING,ERROR}`: Logging verbosity (default: INFO)
+- `--mock-leela`: Use mock Leela Zero (testing only, not for real evaluation)
 
 ## Project Structure
 
@@ -121,28 +118,6 @@ chess-loss-scaling/
 
 Training losses sourced from original papers (GPT-2, Pythia).
 
-## Requirements
-
-### Python Dependencies
-
-- Python ≥ 3.10
-- PyTorch ≥ 2.0
-- Transformers ≥ 4.30
-- python-chess ≥ 1.999
-- pandas, numpy, rich
-
-See `pyproject.toml` for full list.
-
-### Optional: Leela Chess Zero
-
-For real ground truth (not required for testing with mock):
-
-1. Download lc0: https://github.com/LeelaChessZero/lc0/releases
-2. Download weights: https://training.lczero.org/
-3. Place binary in PATH or specify path
-
-Without lc0, the system uses a mock that generates realistic probability distributions for testing.
-
 ## Running Tests
 
 ```bash
@@ -164,15 +139,16 @@ pytest -m "not slow"
 After running, you'll get:
 
 1. **Per-model JSON files** in `results/models/`:
+
    - Detailed per-game and per-position losses
    - Model metadata and configuration
-
 2. **Aggregate CSV** at `results/aggregate_results.csv`:
+
    - Model name, parameters, training loss
    - Chess average loss, std, min, max
    - Number of games and positions evaluated
-
 3. **Console summary**:
+
    - Table of all models and their losses
    - Correlation coefficient between training loss and chess loss
 
@@ -202,48 +178,16 @@ Correlation (reference_loss vs chess_avg_loss): 0.987
 
 Models are loaded and unloaded sequentially to minimize memory usage.
 
-## Troubleshooting
-
-### Out of Memory
-
-```bash
-# Use fewer games
-python -m src.main --num-games 5
-
-# Limit positions per game
-python -m src.main --max-positions 10
-
-# Use smaller models
-python -m src.main --models gpt2 pythia-1b
-```
-
-### Slow Evaluation
-
-- Reduce `--num-games`
-- Reduce `--max-positions`
-- Use `--device cpu` if GPU is slow
-- Evaluate fewer models
-
-### Import Errors
-
-```bash
-# Ensure you're in virtual environment
-source .venv/bin/activate
-
-# Reinstall dependencies
-uv pip install -e .
-```
-
 ## Citation
 
 If you use this code, please cite:
 
 ```
 @misc{chess-loss-scaling-2024,
-  title={Chess Loss Scaling: Testing Training Loss as AI Capability Proxy},
+  title={Chess Loss Scaling: Testing Next-Word Prediction Loss as a General Capability Proxy},
   author={Your Name},
   year={2024},
-  url={https://github.com/yourusername/chess-loss-scaling}
+  url={https://github.com/emilschmitz/chess-check}
 }
 ```
 
@@ -260,9 +204,9 @@ And the original Epoch AI paper:
 
 ## Contributing
 
-This is a research project. Suggestions for improvement:
+This is a research project. Ideas for improvement:
 
-1. Real Leela Zero integration (replace mock)
+1. Use self-play games from Leela Zero to test on instead of actual games that might have been part of training data for lc0 or the LLMs
 2. Download actual grandmaster games (replace sample PGN)
 3. Expand to more models (Llama 2 7B, etc.)
 4. Implement constrained generation for valid moves
@@ -271,10 +215,3 @@ This is a research project. Suggestions for improvement:
 ## License
 
 MIT License - See LICENSE file for details.
-
-## Acknowledgments
-
-- Epoch AI for the research hypothesis
-- Leela Chess Zero project for superhuman chess engine
-- EleutherAI for open-source models (Pythia, GPT-Neo)
-- HuggingFace for model hosting and transformers library

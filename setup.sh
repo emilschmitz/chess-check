@@ -96,14 +96,80 @@ print_status "Checking for Leela Chess Zero..."
 # Check if lc0 is in PATH
 if command -v lc0 &> /dev/null; then
     print_status "lc0 found in PATH!"
+    LC0_BINARY="lc0"
     USE_MOCK=""
+elif [ -f "external/lc0/build/release/lc0" ]; then
+    print_status "lc0 found in external/lc0/build/release/"
+    LC0_BINARY="external/lc0/build/release/lc0"
+    export PATH="$PWD/external/lc0/build/release:$PATH"
+    USE_MOCK=""
+else
+    print_warning "lc0 not found. Attempting to clone and build v0.32.0..."
 
-    # Download network weights if needed
+    if [ ! -d "external/lc0" ]; then
+        mkdir -p external
+        if git clone --depth 1 --branch v0.32.0 https://github.com/LeelaChessZero/lc0.git external/lc0 2>/dev/null; then
+            print_status "lc0 repository cloned"
+        else
+            print_error "Failed to clone lc0 repository"
+            print_warning "Will use mock Leela Zero for this run"
+            USE_MOCK="--mock-leela"
+        fi
+    else
+        print_status "lc0 repository already exists"
+    fi
+
+    # Try to build if repository exists
+    if [ -d "external/lc0" ] && [ -z "$USE_MOCK" ]; then
+        cd external/lc0
+
+        # Check for build dependencies
+        if ! command -v cmake &> /dev/null || ! command -v ninja &> /dev/null; then
+            print_warning "Missing build dependencies (cmake, ninja, pkg-config, g++, libopenblas-dev)"
+            echo ""
+            echo "Install on Ubuntu/Debian:"
+            echo "  sudo apt install git cmake ninja-build pkg-config g++ libopenblas-dev"
+            echo ""
+            echo "Or follow: https://github.com/LeelaChessZero/lc0/blob/master/README.md#building-and-running-lc0"
+            cd ../..
+            USE_MOCK="--mock-leela"
+        else
+            # Try to build
+            if ./build.sh 2>&1 | grep -q "error"; then
+                print_warning "lc0 build had errors"
+                cd ../..
+                USE_MOCK="--mock-leela"
+            else
+                cd ../..
+                if [ -f "external/lc0/build/release/lc0" ]; then
+                    print_status "lc0 built successfully!"
+                    LC0_BINARY="external/lc0/build/release/lc0"
+                    export PATH="$PWD/external/lc0/build/release:$PATH"
+                    USE_MOCK=""
+
+                    # Test if it runs
+                    if ! $LC0_BINARY --version &> /dev/null; then
+                        print_warning "lc0 binary exists but failed to run"
+                        echo "For troubleshooting, see: https://github.com/LeelaChessZero/lc0/blob/master/README.md#building-and-running-lc0"
+                        USE_MOCK="--mock-leela"
+                    else
+                        print_status "lc0 v0.32.0 is working!"
+                    fi
+                else
+                    print_warning "lc0 build completed but binary not found"
+                    USE_MOCK="--mock-leela"
+                fi
+            fi
+        fi
+    fi
+fi
+
+# Download network weights if lc0 is available
+if [ -z "$USE_MOCK" ]; then
     WEIGHTS_FILE="$PWD/weights/lc0_weights.pb.gz"
     if [ ! -f "$WEIGHTS_FILE" ]; then
         print_warning "Downloading lc0 neural network weights (~190MB)..."
         mkdir -p weights
-        # Using a medium network from storage.lczero.org
         WEIGHTS_URL="https://storage.lczero.org/files/networks-contrib/BT3-768x15x24h-swa-2790000.pb.gz"
         if curl -fL --progress-bar "$WEIGHTS_URL" -o "$WEIGHTS_FILE"; then
             print_status "lc0 weights downloaded successfully"
@@ -117,38 +183,7 @@ if command -v lc0 &> /dev/null; then
         print_status "lc0 weights already present"
     fi
 else
-    # Try to download for macOS only (Linux users should use package manager)
-    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-
-    if [ "$OS" = "darwin" ]; then
-        print_warning "lc0 not found. Attempting to download for macOS..."
-        LC0_DIR="$PWD/weights/lc0"
-        LC0_BINARY="$LC0_DIR/lc0"
-        mkdir -p "$LC0_DIR"
-
-        # Download macOS binary
-        LC0_URL="https://github.com/LeelaChessZero/lc0/releases/download/v0.32.0/lc0-v0.32.0-macos_12.6.1"
-        if curl -fSL "$LC0_URL" -o "$LC0_BINARY" 2>/dev/null; then
-            chmod +x "$LC0_BINARY"
-            export PATH="$LC0_DIR:$PATH"
-            print_status "lc0 downloaded for macOS"
-            USE_MOCK=""
-        else
-            print_warning "Failed to download lc0"
-            USE_MOCK="--mock-leela"
-        fi
-    else
-        # Linux - recommend package manager installation
-        print_warning "lc0 not found."
-        echo ""
-        echo "For Linux, install lc0 using your package manager:"
-        echo "  Ubuntu/Debian: sudo apt install lc0"
-        echo "  Arch: sudo pacman -S lc0"
-        echo "  Or build from source: https://github.com/LeelaChessZero/lc0"
-        echo ""
-        print_warning "Will use mock Leela Zero for this run"
-        USE_MOCK="--mock-leela"
-    fi
+    print_warning "Using mock Leela Zero for evaluation"
 fi
 
 echo ""
