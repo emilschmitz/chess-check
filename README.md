@@ -13,6 +13,7 @@ This project evaluates whether general language model training loss correlates w
 ### 1. Install Leela Chess Zero dependencies
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt install git cmake ninja-build pkg-config g++ libopenblas-dev
 ```
@@ -27,6 +28,7 @@ chmod +x setup.sh
 ```
 
 This will:
+
 - Install Python dependencies with uv
 - Clone and build Leela Chess Zero v0.32.0 into `external/lc0`
 - Download neural network weights
@@ -170,14 +172,6 @@ Correlation (reference_loss vs chess_avg_loss): 0.987
 ================================================================================
 ```
 
-## Memory Requirements
-
-- **GPT-2 (124M)**: ~0.5 GB VRAM
-- **Pythia-1B**: ~4 GB VRAM
-- **Pythia-2.8B**: ~8 GB VRAM (with 8-bit quantization)
-
-Models are loaded and unloaded sequentially to minimize memory usage.
-
 ## Citation
 
 If you use this code, please cite:
@@ -191,26 +185,16 @@ If you use this code, please cite:
 }
 ```
 
-And the original Epoch AI paper:
+## Ideas for Improvement:
 
-```
-@article{epoch2024direct,
-  title={Direct Approach to AI Forecasting},
-  author={Epoch AI},
-  year={2024},
-  url={https://epoch.ai/files/direct-approach.pdf}
-}
-```
-
-## Contributing
-
-This is a research project. Ideas for improvement:
-
-1. Use self-play games from Leela Zero to test on instead of actual games that might have been part of training data for lc0 or the LLMs
-2. Download actual grandmaster games (replace sample PGN)
-3. Expand to more models (Llama 2 7B, etc.)
-4. Implement constrained generation for valid moves
-5. Add visualization scripts (loss correlation plots)
+1. Analyze chess loss specifically on models similar to those from the Chinchilla paper (Hoffman 2022). The weights from that paper were never released though. See also [Epoch AI&#39;s replication](https://epoch.ai/publications/chinchilla-scaling-a-replication-attempt) (2024). For those models we'd have measured next-word loss numbers. We can use OLMO models for example. Another alternative would be Pythia models.
+   1. Basically, we need models where we have relevant loss numbers that we can compare. Perhaps, it'd also be nice to have number of train tokens and parameters. Then we could use the Chinchilla formula to also estimate loss. I am unsure if this adds any value. Perhaps it is also useful if the models are all the same except for number of train tokens and number of parameters.
+   2. olmo loss number are available on links from the header in [olmo 2 paper](https://arxiv.org/pdf/2501.00656)
+2. For the OLMO models: check to what extent it is legitimate to use train loss as an approximation for test loss. To do this, we will have to check if they were trained on more than one epoch. We can also check if there is a holdout validation set we can use to get these numbers.
+3. Use self-play games from Leela Zero to test on instead of actual games that might have been part of training data for lc0 (only trained on self-play?) or the LLMs
+4. Expand to more models and predict loss with Chinchilla scaling law
+5. Implement constrained generation for valid moves
+6. Add visualization scripts (loss correlation plots)
 
 ## License
 

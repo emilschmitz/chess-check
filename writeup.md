@@ -34,13 +34,24 @@ We hypothesize that LLMs with lower general training losses will also show lower
 
 ### 2.1 Models Evaluated
 
+#### Misc Models
 - GPT-2 (124M parameters) - baseline small model
 - GPT-Neo 1.3B - mid-size open model
-- Pythia 1.4B - specifically designed with documented training
-- Pythia 2.8B - larger variant with known training trajectory
-- Llama 2 7B - recent state-of-the-art open model
+- Pythia 1.0B, 1.4B, 2.8B - suite with fully documented training trajectories
 
-Model training losses sourced from original papers and documentation.
+#### OLMo 2 Models (Final Checkpoints)
+- OLMo 2 1B (1.0B parameters) - trained on 4T tokens (stage1) + 50B tokens (stage2)
+- OLMo 2 7B (7.0B parameters) - trained on 4T tokens (stage1) + 50B tokens (stage2, model averaged)
+- OLMo 2 13B (13.0B parameters) - trained on 5T tokens (stage1) + 400B tokens (stage2, model averaged)
+- OLMo 2 32B (32.0B parameters) - trained on 6T tokens (stage1) + 400B tokens (stage2, model averaged)
+
+#### OLMo 2 Models (Intermediate Checkpoints at ~50% Training)
+- OLMo 2 1B-mid - checkpoint at 2.0T/4.0T tokens (stage1 only)
+- OLMo 2 7B-mid - checkpoint at 2.0T/4.0T tokens (stage1 only)
+- OLMo 2 13B-mid - checkpoint at 2.5T/5.0T tokens (stage1 only)
+- OLMo 2 32B-mid - checkpoint at 3.0T/6.0T tokens (stage1 only)
+
+Model training losses sourced from original papers, model cards, and WandB training logs (see References section for details).
 
 ### 2.2 Chess Ground Truth
 
@@ -71,6 +82,41 @@ Model training losses sourced from original papers and documentation.
 - Python with PyTorch, Transformers (HuggingFace), python-chess
 - Leela Chess Zero via python-lczero or UCI interface
 
+### 2.6 Loss Metrics and Training Details
+
+#### Understanding Loss Metrics
+
+The loss metrics used in this study refer to **next-token prediction loss** (cross-entropy loss), which measures how well a language model predicts the next token in a sequence. Lower loss indicates better prediction accuracy.
+
+**Training Loss vs. Evaluation Loss:**
+- **Training loss**: Computed on the training dataset during model training. Can be prone to overfitting.
+- **Evaluation loss** (or validation loss): Computed on a held-out validation set not seen during training. More reliable indicator of generalization.
+
+For models trained on massive datasets approaching full coverage of available text (e.g., OLMo 2 trained on 4-6T tokens), the distinction between train and eval loss becomes less meaningful, as the model effectively sees most available data only once. In such cases, training loss approximates evaluation loss.
+
+#### OLMo 2 Training Regime
+
+The OLMo 2 models follow a two-stage training process:
+
+1. **Stage 1 (Pretraining)**: Models are trained on 4-6 trillion tokens from the OLMo-mix-1124 dataset, constituting 90-95% of the total training budget.
+
+2. **Stage 2 (Mid-training/Annealing)**: Additional training on 50-400 billion high-quality tokens from the Dolmino-Mix-1124 dataset. For 7B, 13B, and 32B models, multiple runs with different random seeds are trained and then averaged using model souping to produce the final checkpoint.
+
+Training stability improvements in OLMo 2 include RMSNorm, QK-Norm, rotary positional embeddings, and z-loss regularization. These architectural changes result in higher absolute training loss compared to earlier models due to the regularization terms, but improved training stability and downstream performance.
+
+#### Loss Number Sources
+
+Exact next-token prediction loss values for OLMo 2 models are available in:
+- **WandB training logs**:
+  - 1B model: N/A (?)
+  - 7B model: https://api.wandb.ai/links/ai2-llm/fjn0v0ec
+  - 13B model: https://api.wandb.ai/links/ai2-llm/ypmumwpc
+  - 32B model: https://www.comet.com/ai2/olmo-2-0325-32b/reports/olmo-2-0325-32b?shareable=WhT37Wy7jqttDoy6ysDBumQzf
+- **OLMo 2 paper** (Table 9): arXiv:2501.00656
+- **Model cards**: Available on HuggingFace under allenai organization
+
+Due to the difficulty of extracting precise numerical values from these sources during this analysis, loss values for OLMo 2 models are marked as TBD in our experiments, with full documentation of where these values can be obtained for future reference.
+
 ---
 
 ## Results
@@ -94,6 +140,12 @@ Model training losses sourced from original papers and documentation.
 5. Biderman, S., et al. (2023). Pythia: A Suite for Analyzing Large Language Models. arXiv:2304.01373
 6. Black, S., et al. (2021). GPT-Neo: Large Scale Autoregressive Language Modeling with Mesh-Tensorflow.
 7. Touvron, H., et al. (2023). Llama 2: Open Foundation and Fine-Tuned Chat Models. arXiv:2307.09288
+8. OLMo Team. (2025). 2 OLMo 2 Furious. arXiv:2501.00656. https://arxiv.org/abs/2501.00656
+9. OLMo 2 Model Collection. HuggingFace. https://huggingface.co/collections/allenai/olmo-2-674117b93ab84e98afc72edc
+10. OLMo 2 Training Logs. Weights & Biases.
+    - 1B: https://wandb.ai/ai2-llm/OLMo2-1B
+    - 7B: https://wandb.ai/ai2-llm/OLMo2-7B
+    - 13B: https://wandb.ai/ai2-llm/OLMo2-13B
 
 ---
 

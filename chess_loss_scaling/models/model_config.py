@@ -46,6 +46,83 @@ MODELS = [
         "source": "https://arxiv.org/abs/2304.01373",
         "notes": "Pythia suite, largest practical for testing"
     },
+    # OLMo 2 models - final checkpoints
+    {
+        "name": "olmo-2-1b",
+        "hf_id": "allenai/OLMo-2-0425-1B",
+        "params": "1.0B",
+        "training_loss": None,  # Available in WandB: wandb.ai/ai2-llm/OLMo2-1B
+        "eval_loss": None,  # See WandB or paper Table 9
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 1B, trained on 4T tokens (stage1) + 50B tokens (stage2 mid-training)"
+    },
+    {
+        "name": "olmo-2-1b-mid",
+        "hf_id": "allenai/OLMo-2-0425-1B",
+        "hf_revision": "stage1-step950000-tokens1993B",
+        "params": "1.0B",
+        "training_loss": None,  # Available in WandB: wandb.ai/ai2-llm/OLMo2-1B
+        "eval_loss": None,  # See WandB
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 1B at ~50% training (2.0T/4.0T tokens), stage1 only"
+    },
+    {
+        "name": "olmo-2-7b",
+        "hf_id": "allenai/OLMo-2-1124-7B",
+        "params": "7.0B",
+        "training_loss": None,  # Available in WandB: wandb.ai/ai2-llm/OLMo2-7B
+        "eval_loss": None,  # See WandB or paper Table 9
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 7B, trained on 4T tokens (stage1) + 50B tokens (stage2, 3 runs merged)"
+    },
+    {
+        "name": "olmo-2-7b-mid",
+        "hf_id": "allenai/OLMo-2-1124-7B",
+        "hf_revision": "stage1-step477000-tokens2001B",
+        "params": "7.0B",
+        "training_loss": None,  # Available in WandB: wandb.ai/ai2-llm/OLMo2-7B
+        "eval_loss": None,  # See WandB
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 7B at ~50% training (2.0T/4.0T tokens), stage1 only"
+    },
+    {
+        "name": "olmo-2-13b",
+        "hf_id": "allenai/OLMo-2-1124-13B",
+        "params": "13.0B",
+        "training_loss": None,  # Available in WandB: wandb.ai/ai2-llm/OLMo2-13B
+        "eval_loss": None,  # See WandB or paper Table 9
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 13B, trained on 5T tokens (stage1) + 100B+300B tokens (stage2, 4 runs merged)"
+    },
+    {
+        "name": "olmo-2-13b-mid",
+        "hf_id": "allenai/OLMo-2-1124-13B",
+        "hf_revision": "stage1-step298000-tokens2500B",
+        "params": "13.0B",
+        "training_loss": None,  # Available in WandB: wandb.ai/ai2-llm/OLMo2-13B
+        "eval_loss": None,  # See WandB
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 13B at ~50% training (2.5T/5.0T tokens), stage1 only"
+    },
+    {
+        "name": "olmo-2-32b",
+        "hf_id": "allenai/OLMo-2-0325-32B",
+        "params": "32.0B",
+        "training_loss": None,  # Available in WandB (see paper or model card)
+        "eval_loss": None,  # See WandB or paper Table 9
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 32B, trained on 6T tokens (stage1) + 100B+300B tokens (stage2, 4 runs merged)"
+    },
+    {
+        "name": "olmo-2-32b-mid",
+        "hf_id": "allenai/OLMo-2-0325-32B",
+        "hf_revision": "stage1-step358000-tokens3004B",
+        "params": "32.0B",
+        "training_loss": None,  # Available in WandB
+        "eval_loss": None,  # See WandB
+        "source": "https://arxiv.org/abs/2501.00656",
+        "notes": "OLMo 2 32B at ~50% training (3.0T/6.0T tokens), stage1 only"
+    },
 ]
 
 

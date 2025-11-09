@@ -18,6 +18,7 @@ class ChessLLM:
         model_id: str,
         device: str = "auto",
         load_in_8bit: bool = False,
+        revision: str | None = None,
     ):
         """
         Load model and tokenizer.
@@ -26,18 +27,25 @@ class ChessLLM:
             model_id: HuggingFace model identifier
             device: Device to use ("cuda", "cpu", or "auto")
             load_in_8bit: Use 8-bit quantization to save memory
+            revision: Specific model revision/branch to load (e.g., "stage1-step1000-tokens5B")
         """
         self.model_id = model_id
+        self.revision = revision
         self.device = self._setup_device(device)
         self.load_in_8bit = load_in_8bit
         self.logger = get_logger()
 
-        self.logger.info(f"Loading model {model_id} on {self.device}...")
+        revision_str = f" (revision: {revision})" if revision else ""
+        self.logger.info(f"Loading model {model_id}{revision_str} on {self.device}...")
 
         # Load tokenizer
+        tokenizer_kwargs = {"trust_remote_code": True}
+        if revision:
+            tokenizer_kwargs["revision"] = revision
+
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_id,
-            trust_remote_code=True,
+            **tokenizer_kwargs,
         )
 
         # Some models don't have pad token
@@ -49,6 +57,9 @@ class ChessLLM:
             "trust_remote_code": True,
             "torch_dtype": torch.float16 if self.device == "cuda" else torch.float32,
         }
+
+        if revision:
+            load_kwargs["revision"] = revision
 
         if load_in_8bit and self.device == "cuda":
             load_kwargs["load_in_8bit"] = True
@@ -158,6 +169,7 @@ def load_chess_llm(
     model_id: str,
     device: str = "auto",
     load_in_8bit: bool = False,
+    revision: str | None = None,
 ) -> ChessLLM:
     """
     Factory function to load a chess LLM.
@@ -166,6 +178,7 @@ def load_chess_llm(
         model_id: HuggingFace model identifier
         device: Device to use
         load_in_8bit: Use 8-bit quantization
+        revision: Specific model revision/branch to load
 
     Returns:
         ChessLLM instance
@@ -174,4 +187,5 @@ def load_chess_llm(
         model_id=model_id,
         device=device,
         load_in_8bit=load_in_8bit,
+        revision=revision,
     )

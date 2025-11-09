@@ -45,7 +45,8 @@ def evaluate_model_on_dataset(
     llm = load_chess_llm(
         model_id=model_config["hf_id"],
         device="auto",
-        load_in_8bit=True if "2.8b" in model_config["name"].lower() else False
+        load_in_8bit=True if "2.8b" in model_config["name"].lower() else False,  # TODO check
+        revision=model_config.get("hf_revision"),  # Use specific revision if specified
     )
 
     # Evaluate on all games
