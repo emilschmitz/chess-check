@@ -1,3 +1,5 @@
+This is a report of some experiments that I began as part of the [Apart AI Forecasting Hackathon](https://apartresearch.com/sprints/the-ai-forecasting-hackathon-2025-10-31-to-2025-11-02). It is still work in progress.
+
 # AI Forecasting Hackathon
 
 ## Report Template
@@ -14,7 +16,7 @@ Apart Research
 
 Epoch AI's direct method assumes that lower average loss indicates better general capabilities. We posit that the loss may possibly be indicative only of higher performance on specific content. We attempt to prove this by calculating loss on high-level chess games. To calculate loss, we compare the LLM's prediction to those of open-source chess engine Leela Chess Zero.
 
-At the time of submission, the experiments have not yet run through. I will try to finish them and notify you, if that works.
+At the time of submission, the experiments are not yet finished.
 
 **Keywords**: Direct Method, Chess, LLM
 
@@ -35,17 +37,20 @@ We hypothesize that LLMs with lower general training losses will also show lower
 ### 2.1 Models Evaluated
 
 #### Misc Models
+
 - GPT-2 (124M parameters) - baseline small model
 - GPT-Neo 1.3B - mid-size open model
 - Pythia 1.0B, 1.4B, 2.8B - suite with fully documented training trajectories
 
 #### OLMo 2 Models (Final Checkpoints)
+
 - OLMo 2 1B (1.0B parameters) - trained on 4T tokens (stage1) + 50B tokens (stage2)
 - OLMo 2 7B (7.0B parameters) - trained on 4T tokens (stage1) + 50B tokens (stage2, model averaged)
 - OLMo 2 13B (13.0B parameters) - trained on 5T tokens (stage1) + 400B tokens (stage2, model averaged)
 - OLMo 2 32B (32.0B parameters) - trained on 6T tokens (stage1) + 400B tokens (stage2, model averaged)
 
 #### OLMo 2 Models (Intermediate Checkpoints at ~50% Training)
+
 - OLMo 2 1B-mid - checkpoint at 2.0T/4.0T tokens (stage1 only)
 - OLMo 2 7B-mid - checkpoint at 2.0T/4.0T tokens (stage1 only)
 - OLMo 2 13B-mid - checkpoint at 2.5T/5.0T tokens (stage1 only)
@@ -89,6 +94,7 @@ Model training losses sourced from original papers, model cards, and WandB train
 The loss metrics used in this study refer to **next-token prediction loss** (cross-entropy loss), which measures how well a language model predicts the next token in a sequence. Lower loss indicates better prediction accuracy.
 
 **Training Loss vs. Evaluation Loss:**
+
 - **Training loss**: Computed on the training dataset during model training. Can be prone to overfitting.
 - **Evaluation loss** (or validation loss): Computed on a held-out validation set not seen during training. More reliable indicator of generalization.
 
@@ -99,7 +105,6 @@ For models trained on massive datasets approaching full coverage of available te
 The OLMo 2 models follow a two-stage training process:
 
 1. **Stage 1 (Pretraining)**: Models are trained on 4-6 trillion tokens from the OLMo-mix-1124 dataset, constituting 90-95% of the total training budget.
-
 2. **Stage 2 (Mid-training/Annealing)**: Additional training on 50-400 billion high-quality tokens from the Dolmino-Mix-1124 dataset. For 7B, 13B, and 32B models, multiple runs with different random seeds are trained and then averaged using model souping to produce the final checkpoint.
 
 Training stability improvements in OLMo 2 include RMSNorm, QK-Norm, rotary positional embeddings, and z-loss regularization. These architectural changes result in higher absolute training loss compared to earlier models due to the regularization terms, but improved training stability and downstream performance.
@@ -107,6 +112,7 @@ Training stability improvements in OLMo 2 include RMSNorm, QK-Norm, rotary posit
 #### Loss Number Sources
 
 Exact next-token prediction loss values for OLMo 2 models are available in:
+
 - **WandB training logs**:
   - 1B model: N/A (?)
   - 7B model: https://api.wandb.ai/links/ai2-llm/fjn0v0ec
@@ -125,33 +131,36 @@ Due to the difficulty of extracting precise numerical values from these sources 
 
 Table 1 shows the chess move prediction loss (cross-entropy against Leela Chess Zero) for all evaluated models. Lower values indicate better alignment with superhuman chess play.
 
-| Model Name | Parameters | Reference Loss | Chess Avg Loss | Num Games | Num Positions |
-|------------|-----------|----------------|----------------|-----------|---------------|
-| gpt2 | 124M | 3.31 | 4.352 | 5 | 405 |
-| gpt-neo-1.3B | 1.3B | 2.85 | 4.151 | 5 | 405 |
-| pythia-1b | 1.0B | 2.74 | 4.118 | 5 | 405 |
-| pythia-1.4b | 1.4B | 2.64 | 4.256 | 5 | 405 |
-| olmo-2-1b | 1.0B | TODO | 4.247 | 5 | 405 |
-| olmo-2-1b-mid | 1.0B | TODO | 4.130 | 5 | 405 |
-| olmo-2-7b | 7.0B | TODO | 4.233 | 5 | 405 |
-| olmo-2-7b-mid | 7.0B | TODO | 4.196 | 5 | 405 |
-| olmo-2-13b | 13.0B | TODO | 4.188 | 5 | 405 |
-| olmo-2-13b-mid | 13.0B | TODO | 4.043 | 5 | 405 |
-| olmo-2-32b | 32.0B | TODO | 3.913 | 5 | 405 |
-| olmo-2-32b-mid | 32.0B | TODO | 3.882 | 5 | 405 |
+| Model Name     | Parameters | Reference Loss | Chess Avg Loss | Num Games | Num Positions |
+| -------------- | ---------- | -------------- | -------------- | --------- | ------------- |
+| gpt2           | 124M       | 3.31           | 4.352          | 5         | 405           |
+| gpt-neo-1.3B   | 1.3B       | 2.85           | 4.151          | 5         | 405           |
+| pythia-1b      | 1.0B       | 2.74           | 4.118          | 5         | 405           |
+| pythia-1.4b    | 1.4B       | 2.64           | 4.256          | 5         | 405           |
+| olmo-2-1b      | 1.0B       | TODO           | 4.247          | 5         | 405           |
+| olmo-2-1b-mid  | 1.0B       | TODO           | 4.130          | 5         | 405           |
+| olmo-2-7b      | 7.0B       | TODO           | 4.233          | 5         | 405           |
+| olmo-2-7b-mid  | 7.0B       | TODO           | 4.196          | 5         | 405           |
+| olmo-2-13b     | 13.0B      | TODO           | 4.188          | 5         | 405           |
+| olmo-2-13b-mid | 13.0B      | TODO           | 4.043          | 5         | 405           |
+| olmo-2-32b     | 32.0B      | TODO           | 3.913          | 5         | 405           |
+| olmo-2-32b-mid | 32.0B      | TODO           | 3.882          | 5         | 405           |
 
 *Reference Loss = next-token prediction loss from original papers/training logs (TODO for OLMo models)*
 
 ### 3.2 Key Observations
 
 **Model Size Effects:**
+
 - Among OLMo 2 models, chess loss decreases with model size: the 32B model achieves the lowest loss (3.882 for mid-checkpoint, 3.913 for final), while the 1B model shows the highest loss (4.247 for final, 4.130 for mid-checkpoint).
 - The OLMo 2 32B mid-checkpoint achieves the best overall chess performance across all evaluated models at 3.882.
 
 **Checkpoint Comparison:**
-- Mid-training checkpoints (~50% through stage 1) generally perform slightly better than or comparable to final checkpoints across all OLMo 2 model sizes. These differences may be due to noise. 
+
+- Mid-training checkpoints (~50% through stage 1) generally perform slightly better than or comparable to final checkpoints across all OLMo 2 model sizes. These differences may be due to noise.
 
 **Cross-Model Comparisons:**
+
 - TODO: Pending extraction of reference losses for OLMo models from WandB logs and paper to enable full correlation analysis.
 - Smaller models (GPT-2 124M, Pythia 1B) show higher chess losses.
 
